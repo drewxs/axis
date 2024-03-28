@@ -1,13 +1,15 @@
-use axis::custom_errors::Errors;
+use axis::graphics::window::Window;
 
 fn main() {
-    axis::logger::init();
-    error_test(1);
-}
+    let mut window = Window::new(1080, 720, "Window");
 
-fn error_test(num: i32) -> Result<(), Errors> {
-    if num == 1 {
-        Err(Errors::TestError.into());
+    window.init_gl();
+
+    while !window.should_close() {
+        unsafe {
+            gl::ClearColor(0.3, 0.5, 0.3, 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+        }
+        window.update();
     }
-    Ok(())
 }
