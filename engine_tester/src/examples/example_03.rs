@@ -1,10 +1,11 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use axis::{Mesh, Window};
+use axis::{Mesh, ShaderProgram, Window};
 
 pub fn draw_rect_and_triangle() {
     let mut window = Window::create(1080, 720, "Window");
+    window.background_color = (0.0, 0.0, 0.0, 1.0);
 
     let rect = Mesh::new(
         &[
@@ -18,7 +19,12 @@ pub fn draw_rect_and_triangle() {
             0, 2, 3, // 2nd triangle
         ]),
     );
-    rect.set_color((5.0, 0.3, 0.3, 1.0));
+
+    rect.set_shader(ShaderProgram::new(
+        "shaders/vertex.glsl",
+        "shaders/fragment.glsl",
+    ));
+    rect.set_uniform4f("u_Color", (1.0, 0.3, 0.3, 1.0));
 
     let triangle = Mesh::new(
         &[
@@ -28,7 +34,7 @@ pub fn draw_rect_and_triangle() {
         ],
         None,
     );
-    triangle.set_color((0.3, 0.3, 5.0, 1.0));
+    triangle.set_color((0.3, 0.3, 1.0, 1.0));
 
     window.draw(|| {
         rect.draw();
