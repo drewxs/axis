@@ -12,7 +12,6 @@ pub struct Mesh {
     pub ibo: Option<BufferObject>,
     pub idx_count: i32,
     pub shader: RefCell<ShaderProgram>,
-    pub color: RefCell<(f32, f32, f32, f32)>,
 }
 
 impl Mesh {
@@ -32,8 +31,7 @@ impl Mesh {
 
         let idx_count = indices.map_or(vertices.len() as i32 / 3, |inds| inds.len() as i32);
 
-        let mut shader = ShaderProgram::new(DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
-        shader.create_uniform("u_Color");
+        let shader = ShaderProgram::new(DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
 
         Mesh {
             vao,
@@ -41,24 +39,54 @@ impl Mesh {
             ibo,
             idx_count,
             shader: RefCell::new(shader),
-            color: RefCell::new((1.0, 1.0, 1.0, 1.0)),
         }
     }
 
     pub fn set_shader(&self, shader: ShaderProgram) {
-        *self.shader.borrow_mut() = shader;
+        let mut shader_ref = self.shader.borrow_mut();
+        *shader_ref = shader;
+        shader_ref.bind();
+    }
+
+    pub fn set_uniform1f(&self, uniform_name: &str, value: f32) {
+        let mut shader = self.shader.borrow_mut();
+        shader.bind();
+        shader.set_uniform1f(uniform_name, value);
+    }
+
+    pub fn set_uniform2f(&self, uniform_name: &str, value: (f32, f32)) {
+        let mut shader = self.shader.borrow_mut();
+        shader.bind();
+        shader.set_uniform2f(uniform_name, value);
+    }
+
+    pub fn set_uniform3f(&self, uniform_name: &str, value: (f32, f32, f32)) {
+        let mut shader = self.shader.borrow_mut();
+        shader.bind();
+        shader.set_uniform3f(uniform_name, value);
+    }
+
+    pub fn set_uniform4f(&self, uniform_name: &str, value: (f32, f32, f32, f32)) {
+        let mut shader = self.shader.borrow_mut();
+        shader.bind();
+        shader.set_uniform4f(uniform_name, value);
+    }
+
+    pub fn set_uniform_matrix4fv(&self, uniform_name: &str, value: &cgmath::Matrix4<f32>) {
+        let mut shader = self.shader.borrow_mut();
+        shader.bind();
+        shader.set_uniform_matrix4fv(uniform_name, value);
     }
 
     pub fn set_color(&self, color: (f32, f32, f32, f32)) {
-        *self.color.borrow_mut() = color;
+        self.set_uniform4f("u_Color", color);
     }
 
     pub fn draw(&self) {
-        let mut shader = self.shader.borrow_mut();
+        let shader = self.shader.borrow_mut();
         shader.bind();
-        shader.set_uniform4f("u_Color", self.color.borrow().clone());
-
         self.vao.bind();
+
         unsafe {
             match &self.ibo {
                 Some(_) => {
@@ -67,7 +95,5 @@ impl Mesh {
                 None => gl::DrawArrays(gl::TRIANGLES, 0, self.idx_count),
             }
         }
-
-        shader.unbind();
     }
 }

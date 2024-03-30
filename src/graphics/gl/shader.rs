@@ -106,31 +106,56 @@ impl ShaderProgram {
         }
     }
 
-    pub fn set_uniform4f(&mut self, uniform_name: &str, value: (f32, f32, f32, f32)) {
-        self.bind();
-
-        let uniform_location = *self
+    pub fn get_uniform_location(&mut self, uniform_name: &str) -> i32 {
+        *self
             .uniform_ids
             .entry(uniform_name.to_string())
             .or_insert_with(|| {
                 let name = CString::new(uniform_name).unwrap();
                 unsafe { gl::GetUniformLocation(self.program_handle, name.as_ptr()) }
-            });
+            })
+    }
 
+    pub fn set_uniform1f(&mut self, uniform_name: &str, value: f32) {
+        self.bind();
+
+        let uniform_location = self.get_uniform_location(uniform_name);
         unsafe {
-            let (r, g, b, a) = value;
-            gl::Uniform4f(uniform_location, r, g, b, a);
+            gl::Uniform1f(uniform_location, value);
         }
     }
 
-    pub fn set_matrix4fv_uniform(&self, uniform_name: &str, matrix: &cgmath::Matrix4<f32>) {
+    pub fn set_uniform2f(&mut self, uniform_name: &str, value: (f32, f32)) {
+        self.bind();
+
+        let uniform_location = self.get_uniform_location(uniform_name);
         unsafe {
-            gl::UniformMatrix4fv(
-                self.uniform_ids[uniform_name],
-                1,
-                gl::FALSE,
-                matrix.as_ptr(),
-            )
+            gl::Uniform2f(uniform_location, value.0, value.1);
         }
+    }
+
+    pub fn set_uniform3f(&mut self, uniform_name: &str, value: (f32, f32, f32)) {
+        self.bind();
+
+        let uniform_location = self.get_uniform_location(uniform_name);
+        unsafe {
+            gl::Uniform3f(uniform_location, value.0, value.1, value.2);
+        }
+    }
+
+    pub fn set_uniform4f(&mut self, uniform_name: &str, value: (f32, f32, f32, f32)) {
+        self.bind();
+
+        let uniform_location = self.get_uniform_location(uniform_name);
+        unsafe {
+            gl::Uniform4f(uniform_location, value.0, value.1, value.2, value.3);
+        }
+    }
+
+    pub fn set_uniform_matrix4fv(&mut self, uniform_name: &str, matrix: &cgmath::Matrix4<f32>) {
+        self.bind();
+
+        let uniform_location = self.get_uniform_location(uniform_name);
+        unsafe { gl::UniformMatrix4fv(uniform_location, 1, gl::FALSE, matrix.as_ptr()) }
     }
 }
