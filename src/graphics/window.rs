@@ -45,12 +45,8 @@ impl Window {
 
     pub fn draw<F: Fn()>(&mut self, render_fn: F) {
         while !self.should_close() {
-            unsafe {
-                gl::Clear(gl::COLOR_BUFFER_BIT);
-                let (r, g, b, a) = self.background_color;
-                gl::ClearColor(r, g, b, a);
-                render_fn();
-            }
+            self.clear();
+            render_fn();
             self.update();
         }
     }
@@ -61,13 +57,21 @@ impl Window {
         self.window_handle.swap_buffers();
     }
 
+    pub fn clear(&self) {
+        unsafe {
+            let (r, g, b, a) = self.background_color;
+            gl::ClearColor(r, g, b, a);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+        }
+    }
+
     fn process_events(&mut self) {
         for (_, event) in glfw::flush_messages(&self.events) {
             match event {
                 WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
                     self.window_handle.set_should_close(true);
                 }
-                _ => {}
+                _ => {} // TODO: Handle more events
             }
         }
     }
