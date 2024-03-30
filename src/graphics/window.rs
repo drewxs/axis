@@ -6,6 +6,7 @@ pub struct Window {
     glfw: Glfw,
     window_handle: PWindow,
     events: GlfwReceiver<(f64, WindowEvent)>,
+    pub background_color: (f32, f32, f32, f32),
 }
 
 impl Window {
@@ -23,6 +24,7 @@ impl Window {
             glfw,
             window_handle: window,
             events,
+            background_color: (0.0, 0.0, 0.0, 0.0),
         }
     }
 
@@ -44,8 +46,9 @@ impl Window {
     pub fn draw<F: Fn()>(&mut self, render_fn: F) {
         while !self.should_close() {
             unsafe {
-                gl::ClearColor(0.3, 0.5, 0.3, 1.0);
                 gl::Clear(gl::COLOR_BUFFER_BIT);
+                let (r, g, b, a) = self.background_color;
+                gl::ClearColor(r, g, b, a);
                 render_fn();
             }
             self.update();
