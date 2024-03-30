@@ -3,5 +3,5 @@ mod examples;
 use examples::*;
 
 fn main() {
-    example_02::draw_rect();
+    example_03::draw_rect_and_triangle();
 }
