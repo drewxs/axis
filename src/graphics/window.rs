@@ -26,6 +26,12 @@ impl Window {
         }
     }
 
+    pub fn create(width: u32, height: u32, title: &str) -> Window {
+        let mut window = Window::new(width, height, title);
+        window.init_gl();
+        window
+    }
+
     pub fn init_gl(&mut self) {
         self.window_handle.make_current();
         gl::load_with(|s| self.window_handle.get_proc_address(s) as *const _);
@@ -33,6 +39,17 @@ impl Window {
 
     pub fn should_close(&self) -> bool {
         self.window_handle.should_close()
+    }
+
+    pub fn draw<F: Fn()>(&mut self, render_fn: F) {
+        while !self.should_close() {
+            unsafe {
+                gl::ClearColor(0.3, 0.5, 0.3, 1.0);
+                gl::Clear(gl::COLOR_BUFFER_BIT);
+                render_fn();
+            }
+            self.update();
+        }
     }
 
     pub fn update(&mut self) {

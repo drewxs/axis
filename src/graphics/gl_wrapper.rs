@@ -22,6 +22,13 @@ impl VAO {
         VAO { id }
     }
 
+    /// Create a new VAO and bind it
+    pub fn create() -> VAO {
+        let vao = VAO::new();
+        vao.bind();
+        vao
+    }
+
     pub fn bind(&self) {
         unsafe {
             gl::BindVertexArray(self.id);
@@ -49,6 +56,13 @@ impl BufferObject {
         }
 
         BufferObject { id, r#type, usage }
+    }
+
+    /// Create a new buffer object and bind it
+    pub fn create(r#type: GLenum, usage: GLenum) -> BufferObject {
+        let buffer = BufferObject::new(r#type, usage);
+        buffer.bind();
+        buffer
     }
 
     pub fn bind(&self) {
@@ -84,6 +98,17 @@ impl BufferObject {
             )
         }
     }
+
+    pub fn store_u32_data(&self, data: &[u32]) {
+        unsafe {
+            gl::BufferData(
+                self.r#type,
+                (data.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+                &data[0] as *const u32 as *const c_void,
+                self.usage,
+            )
+        }
+    }
 }
 
 pub struct VertexAttribute {
@@ -104,6 +129,39 @@ impl VertexAttribute {
         }
 
         VertexAttribute { index }
+    }
+
+    /// Create a new vertex attribute and enable it
+    pub fn create(
+        index: u32,
+        size: i32,
+        r#type: GLenum,
+        normalized: GLboolean,
+        stride: GLsizei,
+        pointer: *const c_void,
+    ) -> VertexAttribute {
+        let va = VertexAttribute::new(index, size, r#type, normalized, stride, pointer);
+        va.enable();
+        va
+    }
+
+    /// Create a new vertex attribute with default values
+    pub fn default(index: u32, size: i32) -> VertexAttribute {
+        VertexAttribute::new(
+            index,
+            size,
+            gl::FLOAT,
+            gl::FALSE,
+            3 * mem::size_of::<GLfloat>() as GLsizei,
+            std::ptr::null(),
+        )
+    }
+
+    /// Create a new vertex attribute with default values and enable it
+    pub fn create_default(index: u32, size: i32) -> VertexAttribute {
+        let va = VertexAttribute::default(index, size);
+        va.enable();
+        va
     }
 
     pub fn enable(&self) {
@@ -164,6 +222,12 @@ impl ShaderProgram {
                 uniform_ids: HashMap::new(),
             }
         }
+    }
+
+    pub fn create(vertex_shader_path: &str, fragment_shader_path: &str) -> ShaderProgram {
+        let program = ShaderProgram::new(vertex_shader_path, fragment_shader_path);
+        program.bind();
+        program
     }
 
     pub fn bind(&self) {
