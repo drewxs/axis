@@ -18,6 +18,7 @@ pub fn draw_rect_and_triangle() {
             0, 2, 3, // 2nd triangle
         ]),
     );
+    rect.set_color((5.0, 0.3, 0.3, 1.0));
 
     let triangle = Mesh::new(
         &[
@@ -27,6 +28,7 @@ pub fn draw_rect_and_triangle() {
         ],
         None,
     );
+    triangle.set_color((0.3, 0.3, 5.0, 1.0));
 
     window.draw(|| {
         rect.draw();
