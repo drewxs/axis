@@ -14,6 +14,7 @@ pub struct Mesh {
     pub ibo: Option<BufferObject>,
     pub idx_count: GLsizei,
     pub shader: RefCell<ShaderProgram>,
+    pub textures: Vec<GLuint>,
 }
 
 impl Mesh {
@@ -41,6 +42,7 @@ impl Mesh {
             ibo,
             idx_count,
             shader: RefCell::new(shader),
+            textures: Vec::new(),
         }
     }
 
@@ -102,6 +104,13 @@ impl Mesh {
         let shader = self.shader.borrow_mut();
         shader.bind();
         self.vao.bind();
+
+        for (i, &texture_id) in self.textures.iter().enumerate() {
+            unsafe {
+                gl::ActiveTexture(gl::TEXTURE0 + i as u32);
+                gl::BindTexture(gl::TEXTURE_2D, texture_id);
+            }
+        }
 
         unsafe {
             match &self.ibo {
