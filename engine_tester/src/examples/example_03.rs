@@ -24,7 +24,7 @@ pub fn draw_rect_and_triangle() {
         "shaders/vertex.glsl",
         "shaders/fragment.glsl",
     ));
-    rect.set_uniform4f("u_Color", (1.0, 0.3, 0.3, 1.0));
+    rect.set_uniform("u_Color", (1.0, 0.3, 0.3, 1.0));
 
     let triangle = Mesh::new(
         &[

@@ -116,6 +116,10 @@ impl ShaderProgram {
             })
     }
 
+    pub fn set_uniform<T: UniformType>(&mut self, uniform_name: &str, value: T) {
+        value.set_in_shader(self, uniform_name);
+    }
+
     pub fn set_uniform1f(&mut self, uniform_name: &str, value: f32) {
         self.bind();
 
@@ -157,5 +161,39 @@ impl ShaderProgram {
 
         let uniform_location = self.get_uniform_location(uniform_name);
         unsafe { gl::UniformMatrix4fv(uniform_location, 1, gl::FALSE, matrix.as_ptr()) }
+    }
+}
+
+pub trait UniformType {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str);
+}
+
+impl UniformType for f32 {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str) {
+        shader.set_uniform1f(uniform_name, *self);
+    }
+}
+
+impl UniformType for (f32, f32) {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str) {
+        shader.set_uniform2f(uniform_name, *self);
+    }
+}
+
+impl UniformType for (f32, f32, f32) {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str) {
+        shader.set_uniform3f(uniform_name, *self);
+    }
+}
+
+impl UniformType for (f32, f32, f32, f32) {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str) {
+        shader.set_uniform4f(uniform_name, *self);
+    }
+}
+
+impl UniformType for cgmath::Matrix4<f32> {
+    fn set_in_shader(&self, shader: &mut ShaderProgram, uniform_name: &str) {
+        shader.set_uniform_matrix4fv(uniform_name, self);
     }
 }

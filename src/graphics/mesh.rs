@@ -3,7 +3,7 @@ use std::ptr;
 
 use gl::types::{GLsizei, GLuint};
 
-use crate::{BufferObject, ShaderProgram, VertexAttribute, VAO};
+use crate::{BufferObject, ShaderProgram, UniformType, VertexAttribute, VAO};
 
 const DEFAULT_VERTEX_SHADER: &str = "../shaders/default_vertex.glsl";
 const DEFAULT_FRAGMENT_SHADER: &str = "../shaders/default_fragment.glsl";
@@ -58,34 +58,10 @@ impl Mesh {
         self.material.borrow_mut().replace(material);
     }
 
-    pub fn set_uniform1f(&self, uniform_name: &str, value: f32) {
+    pub fn set_uniform<T: UniformType>(&self, uniform_name: &str, value: T) {
         let mut shader = self.shader.borrow_mut();
         shader.bind();
-        shader.set_uniform1f(uniform_name, value);
-    }
-
-    pub fn set_uniform2f(&self, uniform_name: &str, value: (f32, f32)) {
-        let mut shader = self.shader.borrow_mut();
-        shader.bind();
-        shader.set_uniform2f(uniform_name, value);
-    }
-
-    pub fn set_uniform3f(&self, uniform_name: &str, value: (f32, f32, f32)) {
-        let mut shader = self.shader.borrow_mut();
-        shader.bind();
-        shader.set_uniform3f(uniform_name, value);
-    }
-
-    pub fn set_uniform4f(&self, uniform_name: &str, value: (f32, f32, f32, f32)) {
-        let mut shader = self.shader.borrow_mut();
-        shader.bind();
-        shader.set_uniform4f(uniform_name, value);
-    }
-
-    pub fn set_uniform_matrix4fv(&self, uniform_name: &str, value: &cgmath::Matrix4<f32>) {
-        let mut shader = self.shader.borrow_mut();
-        shader.bind();
-        shader.set_uniform_matrix4fv(uniform_name, value);
+        shader.set_uniform(uniform_name, value);
     }
 
     pub fn set_vertex_attribute(&self, index: u32, size: i32, stride: i32, offset: Option<usize>) {
@@ -103,7 +79,7 @@ impl Mesh {
     }
 
     pub fn set_color(&self, color: (f32, f32, f32, f32)) {
-        self.set_uniform4f("u_Color", color);
+        self.set_uniform("u_Color", color);
     }
 
     pub fn draw(&self) {
