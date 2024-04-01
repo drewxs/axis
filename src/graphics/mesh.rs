@@ -15,6 +15,7 @@ pub struct Mesh {
     pub idx_count: GLsizei,
     pub shader: RefCell<ShaderProgram>,
     pub textures: Vec<GLuint>,
+    pub material: RefCell<Option<Material>>,
 }
 
 impl Mesh {
@@ -43,6 +44,7 @@ impl Mesh {
             idx_count,
             shader: RefCell::new(shader),
             textures: Vec::new(),
+            material: RefCell::new(None),
         }
     }
 
@@ -50,6 +52,10 @@ impl Mesh {
         let mut shader_ref = self.shader.borrow_mut();
         *shader_ref = shader;
         shader_ref.bind();
+    }
+
+    pub fn set_material(&self, material: Material) {
+        self.material.borrow_mut().replace(material);
     }
 
     pub fn set_uniform1f(&self, uniform_name: &str, value: f32) {
@@ -101,9 +107,16 @@ impl Mesh {
     }
 
     pub fn draw(&self) {
-        let shader = self.shader.borrow_mut();
+        let mut shader = self.shader.borrow_mut();
         shader.bind();
         self.vao.bind();
+
+        if let Some(material) = self.material.borrow().as_ref() {
+            shader.set_uniform3f("material.ambient", material.ambient);
+            shader.set_uniform3f("material.diffuse", material.diffuse);
+            shader.set_uniform3f("material.specular", material.specular);
+            shader.set_uniform1f("material.shininess", material.shininess);
+        }
 
         for (i, &texture_id) in self.textures.iter().enumerate() {
             unsafe {
@@ -121,4 +134,11 @@ impl Mesh {
             }
         }
     }
+}
+
+pub struct Material {
+    pub ambient: (f32, f32, f32),
+    pub diffuse: (f32, f32, f32),
+    pub specular: (f32, f32, f32),
+    pub shininess: f32,
 }
