@@ -80,6 +80,20 @@ impl Mesh {
         shader.set_uniform_matrix4fv(uniform_name, value);
     }
 
+    pub fn set_vertex_attribute(&self, index: u32, size: i32, stride: i32, offset: Option<usize>) {
+        self.vao.bind();
+        VertexAttribute::create(
+            index,
+            size,
+            gl::FLOAT,
+            gl::FALSE,
+            stride,
+            offset
+                .map(|x| (x * std::mem::size_of::<f32>()) as *const _)
+                .unwrap_or(std::ptr::null()),
+        );
+    }
+
     pub fn set_color(&self, color: (f32, f32, f32, f32)) {
         self.set_uniform4f("u_Color", color);
     }
