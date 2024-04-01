@@ -5,11 +5,11 @@ use std::io::Read;
 use std::ptr;
 
 use cgmath::Matrix;
-use gl::types::GLchar;
+use gl::types::{GLchar, GLint, GLuint};
 
 pub struct ShaderProgram {
-    program_handle: u32,
-    uniform_ids: HashMap<String, i32>,
+    program_handle: GLuint,
+    uniform_ids: HashMap<String, GLint>,
 }
 
 impl ShaderProgram {

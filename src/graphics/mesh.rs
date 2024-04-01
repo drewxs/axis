@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::ptr;
 
+use gl::types::{GLsizei, GLuint};
+
 use crate::{BufferObject, ShaderProgram, VertexAttribute, VAO};
 
 const DEFAULT_VERTEX_SHADER: &str = "../shaders/default_vertex.glsl";
@@ -10,7 +12,7 @@ pub struct Mesh {
     pub vao: VAO,
     pub vbo: BufferObject,
     pub ibo: Option<BufferObject>,
-    pub idx_count: i32,
+    pub idx_count: GLsizei,
     pub shader: RefCell<ShaderProgram>,
 }
 
